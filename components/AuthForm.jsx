@@ -15,10 +15,7 @@ export default function AuthForm({ mode }) {
   async function submit(e) {
     e.preventDefault();
     const f = Object.fromEntries(new FormData(e.currentTarget));
-    if (up && !f.name.trim()) return toast.error("নাম লিখুন");
-    if (!/^\S+@\S+\.\S+$/.test(f.email)) return toast.error("সঠিক ইমেইল লিখুন");
-    if (f.password.length < 8) return toast.error("পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে");
-    if (up && f.password !== f.confirm) return toast.error("পাসওয়ার্ড দুটি মিলছে না");
+
     setBusy(true);
     const { error } = up ? await authClient.signUp.email({ name: f.name.trim(), email: f.email, password: f.password }) : await authClient.signIn.email({ email: f.email, password: f.password });
     setBusy(false);
