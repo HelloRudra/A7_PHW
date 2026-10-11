@@ -1,0 +1,48 @@
+"use client";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { authClient } from "@/lib/auth-client";
+const PW = ["password", "পাসওয়ার্ড", "password", "কমপক্ষে ৮ অক্ষর"], EM = ["email", "ইমেইল", "email", "you@example.com"];
+const FIELDS = { signin: [EM, PW], signup: [["name", "নাম", "text", "যেমন: রহিম উদ্দিন"], EM, PW, ["confirm", "পাসওয়ার্ড নিশ্চিত করুন", "password", "আবার লিখুন"]] };
+const Google = () => <svg width="13" height="13" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" /><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z" /><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z" /><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z" /></svg>;
+const GitHub = () => <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z" /></svg>;
+export default function AuthForm({ mode }) {
+  const up = mode === "signup", router = useRouter(), sp = useSearchParams(), [busy, setBusy] = useState(false);
+  useEffect(() => { if (sp.get("redirected")) toast.error("এই পেজ দেখতে আগে সাইন ইন করুন", { id: "redirect" }); }, [sp]);
+  const social = (provider) => authClient.signIn.social({ provider, callbackURL: "/" });
+  async function submit(e) {
+    e.preventDefault();
+    const f = Object.fromEntries(new FormData(e.currentTarget));
+    if (up && !f.name.trim()) return toast.error("নাম লিখুন");
+    if (!/^\S+@\S+\.\S+$/.test(f.email)) return toast.error("সঠিক ইমেইল লিখুন");
+    if (f.password.length < 8) return toast.error("পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে");
+    if (up && f.password !== f.confirm) return toast.error("পাসওয়ার্ড দুটি মিলছে না");
+    setBusy(true);
+    const { error } = up ? await authClient.signUp.email({ name: f.name.trim(), email: f.email, password: f.password }) : await authClient.signIn.email({ email: f.email, password: f.password });
+    setBusy(false);
+    if (error) return toast.error(error.message || "কিছু একটা ভুল হয়েছে");
+    toast.success(up ? "অ্যাকাউন্ট তৈরি হয়েছে। এখন সাইন ইন করুন" : "সাইন ইন সফল হয়েছে");
+    router.push(up ? "/signin" : sp.get("next") || "/"); router.refresh();
+  }
+  return (
+    <div className="mx-auto max-w-md space-y-6 py-4">
+      <div><h1 className="text-2xl font-bold leading-8">{up ? "অ্যাকাউন্ট তৈরি করুন" : "সাইন ইন"}</h1>
+        <p className="text-sm">{up ? "বিনা খরচে সাইন আপ করে সব বিস্তারিত দাম দেখুন।" : "বিস্তারিত দাম, বাজার তুলনা ও প্রোফাইল দেখতে অ্যাকাউন্টে ঢুকুন।"}</p></div>
+      <div className="card-s p-6">
+        <form onSubmit={submit} noValidate className="flex flex-col gap-4">
+          {FIELDS[mode].map(([n, l, t, ph]) => <label key={n} className="flex flex-col gap-1 text-sm font-medium">{l}<input name={n} type={t} placeholder={ph} className="fin font-normal" /></label>)}
+          <button disabled={busy} className="fb fb-p !h-10 !px-[17px] !text-sm w-full">{busy ? <span className="loading loading-spinner loading-sm" /> : up ? "অ্যাকাউন্ট তৈরি করুন" : "সাইন ইন"}</button>
+          <div className="flex items-center gap-4 text-xs"><span className="h-px flex-1 bg-base-300" />অথবা<span className="h-px flex-1 bg-base-300" /></div>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => social("google")} className="fb fb-o !h-10 !px-[17px] !text-sm flex-1"><Google />Google দিয়ে চালিয়ে যান</button>
+            <button type="button" onClick={() => social("github")} className="fb fb-o !h-10 !px-[17px] !text-sm flex-1"><GitHub />GitHub দিয়ে চালিয়ে যান</button>
+          </div>
+          <p className="text-center text-sm">{up ? "অ্যাকাউন্ট আছে? " : "অ্যাকাউন্ট নেই? "}<Link className="text-primary hover:text-[#02642b]" href={up ? "/signin" : "/signup"}>{up ? "সাইন ইন করুন" : "সাইন আপ করুন"}</Link></p>
+        </form>
+      </div>
+      <Link href="/" className="block text-center text-sm hover:underline">← হোম পেজে ফিরে যান</Link>
+    </div>
+  );
+}

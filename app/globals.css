@@ -1,0 +1,25 @@
+@import "tailwindcss";
+@plugin "daisyui" { themes: false; }
+@plugin "daisyui/theme" {
+  name: "bazardor"; default: true; color-scheme: light;
+  --color-base-100: #fafcfa; --color-base-200: #f0f5f0; --color-base-300: #e1e8e1; --color-base-content: #1d271f;
+  --color-primary: #05893e; --color-primary-content: #f3fbf4;
+  --color-error: #d03739; --color-error-content: #fff6f5; --color-success: #1a9951;
+  --radius-field: 0.5rem; --radius-box: 1rem;
+}
+@theme { --color-hov: #dadeda; --color-primary-strong: #047c37; --color-nav-active: #047f39; --font-sans: "Hind Siliguri", system-ui, sans-serif; }
+html { scroll-behavior: smooth; }
+body { @apply bg-base-200 text-base-content font-sans; }
+@layer components {
+  .fb { @apply inline-flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-[13px] text-xs font-semibold transition-colors sm:h-10 sm:px-[17px] sm:text-sm; }
+  .fb-p { @apply bg-primary text-primary-content hover:bg-primary-strong; }
+  .fb-o { @apply border border-base-300 hover:bg-hov; }
+  .fb-g { @apply hover:bg-hov; }
+  .fb-e { @apply border border-error text-error hover:bg-[#bd3133] hover:text-error-content; }
+  .fin { @apply h-10 w-full rounded-lg border border-base-300 bg-base-100 px-[13px] text-sm outline-none placeholder:text-base-content/50 focus:border-primary; }
+  .card-s { @apply rounded-2xl border border-base-300 bg-base-100; }
+}
+@keyframes ticker { to { transform: translateX(-50%); } }
+.ticker-track { animation: ticker 60s linear infinite; }
+.ticker-track:hover { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; } }
