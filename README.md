@@ -11,3 +11,6 @@ Next.js (App Router), Tailwind CSS v4, DaisyUI, Better Auth (MongoDB), react-hot
 4. Protected product details with per-market min/max prices
 5. Email/password, Google and GitHub auth with toast feedback
 6. Profile page with name update; custom 404 and empty states
+
+# Live Link
+https://bazardor-peach.vercel.app
