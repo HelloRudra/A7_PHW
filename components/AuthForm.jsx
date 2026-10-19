@@ -46,3 +46,6 @@ export default function AuthForm({ mode }) {
     </div>
   );
 }
+
+// Google and github authentication needed
+
